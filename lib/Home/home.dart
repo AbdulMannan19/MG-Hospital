@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../Profile/profile.dart';
 import '../Appointment/appointment.dart';
+import '../Admin/appointment_settings.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,11 +13,34 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  bool isAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAdminStatus();
+  }
+
+  Future<void> _checkAdminStatus() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user != null) {
+      final response = await Supabase.instance.client
+          .from('users')
+          .select('is_admin')
+          .eq('id', user.id)
+          .single();
+      
+      if (mounted) {
+        setState(() {
+          isAdmin = response['is_admin'] ?? false;
+        });
+      }
+    }
+  }
 
   static const List<Widget> _pages = <Widget>[
     Center(child: Text('Welcome to Med Hospital Home', style: TextStyle(fontSize: 20))),
     Center(child: Text('Appointments Page', style: TextStyle(fontSize: 20))),
-    Center(child: Text('Report Page', style: TextStyle(fontSize: 20))),
   ];
 
   void _onItemTapped(int index) {
@@ -56,6 +80,18 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Settings'),
                 onTap: () {},
               ),
+              if (isAdmin) // Only show this option for admin users
+                ListTile(
+                  leading: const Icon(Icons.calendar_month),
+                  title: const Text('Manage Appointments'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AppointmentSettingsPage()),
+                    );
+                  },
+                ),
               const Spacer(),
               ListTile(
                 leading: const Icon(Icons.logout),
@@ -97,10 +133,6 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
             label: 'Appointments',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.description),
-            label: 'Report',
           ),
         ],
       ),
