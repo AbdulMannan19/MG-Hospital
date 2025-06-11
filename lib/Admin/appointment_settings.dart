@@ -5,7 +5,8 @@ class AppointmentSettingsPage extends StatefulWidget {
   const AppointmentSettingsPage({super.key});
 
   @override
-  State<AppointmentSettingsPage> createState() => _AppointmentSettingsPageState();
+  State<AppointmentSettingsPage> createState() =>
+      _AppointmentSettingsPageState();
 }
 
 class _AppointmentSettingsPageState extends State<AppointmentSettingsPage> {
@@ -33,14 +34,16 @@ class _AppointmentSettingsPageState extends State<AppointmentSettingsPage> {
       final branchResponse = await Supabase.instance.client
           .from('hospitalbranch')
           .select('id, name');
-      
+
       final specializationResponse = await Supabase.instance.client
           .from('specialization')
           .select('id, name');
 
       setState(() {
-        branches = (branchResponse as List<dynamic>).cast<Map<String, dynamic>>();
-        specializations = (specializationResponse as List<dynamic>).cast<Map<String, dynamic>>();
+        branches =
+            (branchResponse as List<dynamic>).cast<Map<String, dynamic>>();
+        specializations = (specializationResponse as List<dynamic>)
+            .cast<Map<String, dynamic>>();
         isLoading = false;
       });
     } catch (e) {
@@ -52,17 +55,18 @@ class _AppointmentSettingsPageState extends State<AppointmentSettingsPage> {
 
   Future<void> loadSchedules() async {
     if (selectedBranch == null || selectedSpecialization == null) return;
-    
+
     setState(() => isLoading = true);
     try {
       final scheduleResponse = await Supabase.instance.client
           .from('schedule')
           .select('id, day_of_week')
-          .eq('hospital_branch_id', selectedBranch)
-          .eq('specialization_id', selectedSpecialization);
+          .eq('hospital_branch_id', selectedBranch ?? '')
+          .eq('specialization_id', selectedSpecialization ?? '');
 
       setState(() {
-        schedules = (scheduleResponse as List<dynamic>).cast<Map<String, dynamic>>();
+        schedules =
+            (scheduleResponse as List<dynamic>).cast<Map<String, dynamic>>();
         isLoading = false;
       });
     } catch (e) {
@@ -73,11 +77,14 @@ class _AppointmentSettingsPageState extends State<AppointmentSettingsPage> {
   }
 
   Future<void> loadTimeSlots() async {
-    if (selectedBranch == null || selectedSpecialization == null || selectedDay == null) return;
+    if (selectedBranch == null ||
+        selectedSpecialization == null ||
+        selectedDay == null) return;
 
     final schedule = schedules.firstWhere(
       (schedule) => schedule['day_of_week'] == selectedDay,
-      orElse: () => {'id': null, 'day_of_week': ''}, // Return empty map instead of null
+      orElse: () =>
+          {'id': null, 'day_of_week': ''}, // Return empty map instead of null
     );
 
     final scheduleId = schedule['id'];
@@ -90,7 +97,8 @@ class _AppointmentSettingsPageState extends State<AppointmentSettingsPage> {
             .eq('schedule_id', scheduleId);
 
         setState(() {
-          timeSlots = (timeslotResponse as List<dynamic>).cast<Map<String, dynamic>>();
+          timeSlots =
+              (timeslotResponse as List<dynamic>).cast<Map<String, dynamic>>();
           slotsToAdd.clear();
           slotsToRemove.clear();
           hasUnsavedChanges = false;
@@ -137,19 +145,19 @@ class _AppointmentSettingsPageState extends State<AppointmentSettingsPage> {
             .from('timeslot')
             .delete()
             .eq('schedule_id', scheduleId)
-            .in_('start_time', slotsToRemove.toList());
+            .inFilter('start_time', slotsToRemove.toList());
       }
 
       // Batch insert new slots
       if (slotsToAdd.isNotEmpty) {
-        final slotsToInsert = slotsToAdd.map((time) => {
-          'schedule_id': scheduleId,
-          'start_time': time,
-        }).toList();
+        final slotsToInsert = slotsToAdd
+            .map((time) => {
+                  'schedule_id': scheduleId,
+                  'start_time': time,
+                })
+            .toList();
 
-        await Supabase.instance.client
-            .from('timeslot')
-            .insert(slotsToInsert);
+        await Supabase.instance.client.from('timeslot').insert(slotsToInsert);
       }
 
       // Reload time slots to refresh the view
@@ -173,16 +181,28 @@ class _AppointmentSettingsPageState extends State<AppointmentSettingsPage> {
   }
 
   bool isSlotAvailable(String time) {
-    final existsInDatabase = timeSlots.any((slot) => slot['start_time'] == time);
-    return (existsInDatabase && !slotsToRemove.contains(time)) || slotsToAdd.contains(time);
+    final existsInDatabase =
+        timeSlots.any((slot) => slot['start_time'] == time);
+    return (existsInDatabase && !slotsToRemove.contains(time)) ||
+        slotsToAdd.contains(time);
   }
 
   List<String> generateTimeSlots() {
     return [
-      '10:00:00', '10:30:00', '11:00:00', '11:30:00',
-      '12:00:00', '12:30:00', '13:00:00', '13:30:00',
-      '14:00:00', '14:30:00', '15:00:00', '15:30:00',
-      '16:00:00', '16:30:00'
+      '10:00:00',
+      '10:30:00',
+      '11:00:00',
+      '11:30:00',
+      '12:00:00',
+      '12:30:00',
+      '13:00:00',
+      '13:30:00',
+      '14:00:00',
+      '14:30:00',
+      '15:00:00',
+      '15:30:00',
+      '16:00:00',
+      '16:30:00'
     ];
   }
 
@@ -195,7 +215,8 @@ class _AppointmentSettingsPageState extends State<AppointmentSettingsPage> {
           if (hasUnsavedChanges)
             TextButton.icon(
               icon: const Icon(Icons.save, color: Colors.white),
-              label: const Text('Save Changes', style: TextStyle(color: Colors.white)),
+              label: const Text('Save Changes',
+                  style: TextStyle(color: Colors.white)),
               onPressed: saveChanges,
             ),
         ],
@@ -320,7 +341,8 @@ class _AppointmentSettingsPageState extends State<AppointmentSettingsPage> {
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 4,
                         childAspectRatio: 2.5,
                         crossAxisSpacing: 10,
@@ -333,8 +355,10 @@ class _AppointmentSettingsPageState extends State<AppointmentSettingsPage> {
 
                         return ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isAvailable ? Colors.green : Colors.grey[300],
-                            foregroundColor: isAvailable ? Colors.white : Colors.black,
+                            backgroundColor:
+                                isAvailable ? Colors.green : Colors.grey[300],
+                            foregroundColor:
+                                isAvailable ? Colors.white : Colors.black,
                           ),
                           onPressed: () => toggleTimeSlot(time, isAvailable),
                           child: Text(
@@ -350,4 +374,4 @@ class _AppointmentSettingsPageState extends State<AppointmentSettingsPage> {
             ),
     );
   }
-} 
+}

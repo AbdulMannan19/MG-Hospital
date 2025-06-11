@@ -19,6 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final _phoneController = TextEditingController();
   bool _loading = true;
   String? _error;
+  String? _userEmail;
 
   @override
   void initState() {
@@ -35,6 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
     // Check cache first unless forceRefresh is true
     if (!forceRefresh && ProfileCache.profile != null) {
       _setControllers(ProfileCache.profile!);
+      _userEmail = Supabase.instance.client.auth.currentUser?.email;
       setState(() {
         _loading = false;
       });
@@ -59,6 +61,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ProfileCache.profile = response; // Cache it
         _setControllers(response);
       }
+      _userEmail = user.email;
       setState(() {
         _loading = false;
       });
@@ -130,7 +133,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('My Profile'),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -142,41 +147,120 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-      body: Center(
-        child: _loading
-            ? const CircularProgressIndicator()
-            : _error != null
-                ? Text(_error!)
-                : Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TextField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(labelText: 'Name'),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? Center(child: Text(_error!))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                        child:
+                            Icon(Icons.person, size: 60, color: Colors.white),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _nameController.text.isNotEmpty
+                            ? _nameController.text
+                            : 'Guest User',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      if (_userEmail != null)
+                        Text(
+                          _userEmail!,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(color: Colors.grey[700]),
                         ),
-                        TextField(
-                          controller: _dobController,
-                          decoration: const InputDecoration(labelText: 'Date of Birth (YYYY-MM-DD)'),
+                      const SizedBox(height: 32),
+                      Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: _nameController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Name',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.person),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _dobController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Date of Birth (YYYY-MM-DD)',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.calendar_today),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _genderController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Gender',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.transgender),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _phoneController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Phone Number',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.phone),
+                                ),
+                                keyboardType: TextInputType.phone,
+                              ),
+                              const SizedBox(height: 24),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: _saveProfile,
+                                  icon:
+                                      _loading // Use _loading state for the save button
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                  strokeWidth: 2),
+                                            )
+                                          : const Icon(Icons.save),
+                                  label: const Text('Save Profile'),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 14),
+                                    textStyle: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        TextField(
-                          controller: _genderController,
-                          decoration: const InputDecoration(labelText: 'Gender'),
-                        ),
-                        TextField(
-                          controller: _phoneController,
-                          decoration: const InputDecoration(labelText: 'Phone Number'),
-                        ),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: _saveProfile,
-                          child: const Text('Save'),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-      ),
+                ),
     );
   }
-} 
+}

@@ -9,7 +9,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   @override
   void initState() {
     super.initState();
@@ -50,7 +49,8 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             ElevatedButton(
               onPressed: () async {
-                await Supabase.instance.client.auth.signInWithOAuth(Provider.google);
+                await Supabase.instance.client.auth
+                    .signInWithOAuth(OAuthProvider.google);
               },
               child: const Text('Sign in with Google'),
             ),
