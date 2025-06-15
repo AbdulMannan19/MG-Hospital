@@ -6,6 +6,7 @@ import '../Hospital/hospital_branches_page.dart';
 import '../About Us/about_us_page.dart';
 import '../Specialities/specialities_page.dart';
 import '../Our Doctors/our_doctors_page.dart';
+import '../Appointment/user_appointments.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -95,9 +96,13 @@ class _HomePageState extends State<HomePage> {
               ),
               ListTile(
                 leading: const Icon(Icons.more_horiz),
-                title: const Text('More'),
+                title: const Text('User Appointments'),
                 onTap: () {
-                  // TODO: Navigate to More page or show more options
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const UserAppointmentsPage()),
+                  );
                 },
               ),
               const Divider(),

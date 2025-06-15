@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppointmentListingPage extends StatefulWidget {
   const AppointmentListingPage({super.key});
@@ -120,27 +121,43 @@ class _AppointmentListingPageState extends State<AppointmentListingPage> {
                             ),
                           );
                         }).toList(),
-                        onChanged: (value) {
-                          final spec = specializationList
-                              .firstWhere((s) => s['id'] == value);
-                          setState(() {
-                            selectedSpecializationName = spec['name'];
-                          });
-                        },
+                        onChanged: selectedBranchName == null
+                            ? null
+                            : (value) {
+                                final spec = specializationList
+                                    .firstWhere((s) => s['id'] == value);
+                                setState(() {
+                                  selectedSpecializationName = spec['name'];
+                                });
+                              },
+                        disabledHint: const Text('Select branch first'),
                       ),
                     ],
                   ),
                 ),
               ),
               // Doctor Profile Cards
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: doctorList.length,
-                itemBuilder: (context, idx) {
-                  return DoctorProfileCard(doctor: doctorList[idx]);
-                },
-              ),
+              if (selectedBranchName != null &&
+                  selectedSpecializationName != null)
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: doctorList.length,
+                  itemBuilder: (context, idx) {
+                    return DoctorProfileCard(doctor: doctorList[idx]);
+                  },
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32.0),
+                  child: Center(
+                    child: Text(
+                      'Please select both a branch and specialization to see available doctors.',
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -287,14 +304,65 @@ class _DoctorProfileCardState extends State<DoctorProfileCard> {
                   elevation: 0,
                 ),
                 onPressed: (selectedDate != null && selectedTime != null)
-                    ? () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                'Appointment booked with ${doctor['name']} on ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} at $selectedTime'),
-                            backgroundColor: Colors.green,
-                          ),
+                    ? () async {
+                        final emailController = TextEditingController();
+                        final enteredEmail = await showDialog<String>(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Enter Your Email'),
+                              content: TextField(
+                                controller: emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: const InputDecoration(
+                                  labelText: 'Email',
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(emailController.text.trim());
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
                         );
+                        if (enteredEmail != null && enteredEmail.isNotEmpty) {
+                          final response = await Supabase.instance.client
+                              .from('appointments')
+                              .insert({
+                            'patientemail': enteredEmail,
+                            'doctorname': doctor['name'],
+                            'hospitalbranch': doctor['hospital'],
+                            'appointmentdate':
+                                selectedDate!.toIso8601String().split('T')[0],
+                            'appointmenttime': selectedTime,
+                          });
+                          if (response.error == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Appointment booked with \\${doctor['name']} on \\${selectedDate!.day}/\\${selectedDate!.month}/\\${selectedDate!.year} at \\$selectedTime'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Failed to book appointment: \\${response.error!.message}'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
                       }
                     : null,
                 child: const Row(
