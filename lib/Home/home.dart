@@ -29,7 +29,17 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const SizedBox(),
+        title: Center(
+          child: Image.asset(
+            'assets/images/mghospital-logo.png',
+            height: 40,
+            fit: BoxFit.contain,
+          ),
+        ),
+        actions: [
+          // Adding an empty container to balance the leading icon
+          Container(width: 48),
+        ],
       ),
       drawer: Drawer(
         child: SafeArea(
@@ -226,7 +236,7 @@ class _HomePageState extends State<HomePage> {
         },
       ),
       bottomNavigationBar: Container(
-        color: Colors.white,
+        color: const Color(0xFF00a0e0),
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -234,7 +244,7 @@ class _HomePageState extends State<HomePage> {
             _NavItem(
               icon: Icons.laptop_mac,
               label: 'Book Appt.',
-              color: Colors.green,
+              color: const Color.fromARGB(255, 2, 117, 73),
               onTap: () {
                 Navigator.push(
                   context,
@@ -246,7 +256,7 @@ class _HomePageState extends State<HomePage> {
             _NavItem(
               icon: Icons.local_hospital,
               label: 'Hospitals',
-              color: Colors.blue,
+              color: Colors.white,
               onTap: () {
                 Navigator.push(
                   context,
@@ -258,7 +268,7 @@ class _HomePageState extends State<HomePage> {
             _NavItem(
               icon: Icons.phone,
               label: 'Call Us',
-              color: Colors.blue,
+              color: Colors.white,
               onTap: () {
                 Navigator.push(
                   context,
