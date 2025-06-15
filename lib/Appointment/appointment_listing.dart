@@ -121,27 +121,43 @@ class _AppointmentListingPageState extends State<AppointmentListingPage> {
                             ),
                           );
                         }).toList(),
-                        onChanged: (value) {
-                          final spec = specializationList
-                              .firstWhere((s) => s['id'] == value);
-                          setState(() {
-                            selectedSpecializationName = spec['name'];
-                          });
-                        },
+                        onChanged: selectedBranchName == null
+                            ? null
+                            : (value) {
+                                final spec = specializationList
+                                    .firstWhere((s) => s['id'] == value);
+                                setState(() {
+                                  selectedSpecializationName = spec['name'];
+                                });
+                              },
+                        disabledHint: const Text('Select branch first'),
                       ),
                     ],
                   ),
                 ),
               ),
               // Doctor Profile Cards
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: doctorList.length,
-                itemBuilder: (context, idx) {
-                  return DoctorProfileCard(doctor: doctorList[idx]);
-                },
-              ),
+              if (selectedBranchName != null &&
+                  selectedSpecializationName != null)
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: doctorList.length,
+                  itemBuilder: (context, idx) {
+                    return DoctorProfileCard(doctor: doctorList[idx]);
+                  },
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32.0),
+                  child: Center(
+                    child: Text(
+                      'Please select both a branch and specialization to see available doctors.',
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
