@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ContactInfoPage extends StatelessWidget {
   const ContactInfoPage({Key? key}) : super(key: key);
 
-  void _callNumber(String phone) async {
-    final Uri url = Uri(scheme: 'tel', path: phone);
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +61,6 @@ class ContactInfoPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   GestureDetector(
-                    onTap: () => _callNumber('9030472480'),
                     child: const Text('9030472480',
                         style: TextStyle(
                             fontSize: 16,
@@ -76,7 +69,6 @@ class ContactInfoPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   GestureDetector(
-                    onTap: () => _callNumber('04069654786'),
                     child: const Text('040 6965 4786',
                         style: TextStyle(
                             fontSize: 16,

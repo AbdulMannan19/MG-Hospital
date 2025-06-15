@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../Profile/profile.dart';
-import '../Appointment/appointment.dart';
-import '../Appointment/user_appointments.dart';
-import '../Admin/appointment_settings.dart';
+import '../Appointment/appointment_listing.dart';
 import '../Contact/contact_info_page.dart';
 import '../Hospital/hospital_branches_page.dart';
-import '../About/about_us_page.dart';
+import '../About Us/about_us_page.dart';
 import '../Specialities/specialities_page.dart';
-import '../Doctors/our_doctors_page.dart';
+import '../Our Doctors/our_doctors_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,76 +16,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  bool isAdmin = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkAdminStatus();
-  }
-
-  Future<void> _checkAdminStatus() async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user != null) {
-      final response = await Supabase.instance.client
-          .from('users')
-          .select('is_admin')
-          .eq('id', user.id)
-          .single();
-
-      if (mounted) {
-        setState(() {
-          isAdmin = response['is_admin'] ?? false;
-        });
-      }
-    }
-  }
-
-  // Modified _pages list
-  static final List<Widget> _pages = <Widget>[
-    Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/home_bg.jpeg'),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Stack(
-        children: [
-          // Centered overlay image
-          Center(
-            child: Image.asset(
-              'assets/images/main.png',
-              width: 800, // Adjust size as needed
-              fit: BoxFit.contain,
-            ),
-          ),
-          // Centered text (optional, if you want to keep it)
-          const Center(
-            child: Text(
-              'Welcome to MG Hospital Home',
-              style: TextStyle(fontSize: 20, color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    ),
-    const Center(
-        child: Text('Appointments Page', style: TextStyle(fontSize: 20))),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  void _logout() async {
-    await Supabase.instance.client.auth.signOut();
-    if (mounted) {
-      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,24 +23,13 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(2.0),
-          child: Image.asset(
-            'assets/images/mghospital-logo.png',
-            fit: BoxFit.contain,
-            height: 64,
-            width: 64,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.black, size: 32),
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
         title: const SizedBox(),
-        actions: [
-          Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu, color: Colors.black, size: 32),
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
-          ),
-        ],
       ),
       drawer: Drawer(
         child: SafeArea(
@@ -171,23 +87,10 @@ class _HomePageState extends State<HomePage> {
                 leading: const Icon(Icons.more_horiz),
                 title: const Text('More'),
                 onTap: () {
-               
+                  // TODO: Navigate to More page or show more options
                 },
               ),
               const Divider(),
-              ListTile(
-                leading: const Icon(Icons.calendar_today),
-                title: const Text('Manage User Appointments'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const UserAppointmentsPage(),
-                    ),
-                  );
-                },
-              ),
               ListTile(
                 leading: const Icon(Icons.person),
                 title: const Text('Profile'),
@@ -206,25 +109,17 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Settings'),
                 onTap: () {},
               ),
-              if (isAdmin)
-                ListTile(
-                  leading: const Icon(Icons.calendar_month),
-                  title: const Text('Manage Appointments'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AppointmentSettingsPage(),
-                      ),
-                    );
-                  },
-                ),
               const Spacer(),
               ListTile(
                 leading: const Icon(Icons.logout),
                 title: const Text('Logout'),
-                onTap: _logout,
+                onTap: () {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/login',
+                    (route) => false,
+                  );
+                },
               ),
             ],
           ),
@@ -309,7 +204,8 @@ class _HomePageState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const AppointmentPage()),
+                                builder: (context) =>
+                                    const AppointmentListingPage()),
                           );
                         },
                         child: const Text('Book An Appointment'),
@@ -343,7 +239,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const AppointmentPage()),
+                      builder: (context) => const AppointmentListingPage()),
                 );
               },
             ),

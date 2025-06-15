@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Appointment/appointment.dart';
+import '../Appointment/appointment_listing.dart';
 
 class OurDoctorsPage extends StatelessWidget {
   const OurDoctorsPage({super.key});
@@ -240,32 +240,6 @@ class OurDoctorsPage extends StatelessWidget {
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF13a8b4),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AppointmentPage(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'Book An Appointment',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
                 ),
               ],
             ),
