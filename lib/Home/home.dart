@@ -140,105 +140,138 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final appBarHeight = kToolbarHeight;
-          final bottomNavHeight = 64.0;
-          final availableHeight =
-              constraints.maxHeight - appBarHeight - bottomNavHeight;
-          return Container(
-            width: double.infinity,
-            height:
-                availableHeight > 0 ? availableHeight : constraints.maxHeight,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF13a8b4), Color(0xFF3ed2c0)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      body: Column(
+        children: [
+          // Green gradient area with main content
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final appBarHeight = kToolbarHeight;
+                final bottomNavHeight = 64.0;
+                final availableHeight =
+                    constraints.maxHeight - appBarHeight - bottomNavHeight;
+                return Container(
+                  width: double.infinity,
+                  height: availableHeight > 0
+                      ? availableHeight
+                      : constraints.maxHeight,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF13a8b4), Color(0xFF3ed2c0)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 10),
-                      Container(
+                      Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          'Best Multi Speciality Hospital in Tolichowki Hyderabad',
-                          style: TextStyle(
-                            color: Color(0xFF13a8b4),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
+                            horizontal: 20, vertical: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.8),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'Best Multi Speciality Hospital in Tolichowki Hyderabad',
+                                style: TextStyle(
+                                  color: Color(0xFF13a8b4),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+                            const Text(
+                              'Your Health, Our Passion',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                height: 1.2,
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            const Text(
+                              'Muslim General Hospital Tolichowki consists of a highly trained team of medical experts, advanced facilities and unwavering commitment to the welfare of our patients.',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                height: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 28),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue[900],
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 32, vertical: 16),
+                                textStyle: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)),
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const AppointmentListingPage()),
+                                );
+                              },
+                              child: const Text('Book An Appointment'),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 30),
-                      const Text(
-                        'Your Health, Our Passion',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          height: 1.2,
+                      Center(
+                        child: Image.asset(
+                          'assets/images/main.png',
+                          height: 260,
+                          fit: BoxFit.contain,
                         ),
-                      ),
-                      const SizedBox(height: 18),
-                      const Text(
-                        'Muslim General Hospital Tolichowki consists of a highly trained team of medical experts, advanced facilities and unwavering commitment to the welfare of our patients.',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                          height: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[900],
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 32, vertical: 16),
-                          textStyle: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const AppointmentListingPage()),
-                          );
-                        },
-                        child: const Text('Book An Appointment'),
                       ),
                     ],
                   ),
-                ),
-                Center(
-                  child: Image.asset(
-                    'assets/images/main.png',
-                    height: 260,
-                    fit: BoxFit.contain,
+                );
+              },
+            ),
+          ),
+          // Advertisement card
+          Container(
+            width: double.infinity,
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: Text(
+                    'Advertisement',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[800],
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
-              ],
+              ),
             ),
-          );
-        },
+          ),
+        ],
       ),
       bottomNavigationBar: Container(
         color: const Color(0xFF00a0e0),
