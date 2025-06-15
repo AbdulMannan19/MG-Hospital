@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../Profile/profile.dart';
 import '../Appointment/appointment.dart';
+import '../Appointment/user_appointments.dart';
 import '../Admin/appointment_settings.dart';
 import '../Contact/contact_info_page.dart';
 import '../Hospital/hospital_branches_page.dart';
@@ -170,10 +171,23 @@ class _HomePageState extends State<HomePage> {
                 leading: const Icon(Icons.more_horiz),
                 title: const Text('More'),
                 onTap: () {
-                  // TODO: Navigate to More page or show more options
+               
                 },
               ),
               const Divider(),
+              ListTile(
+                leading: const Icon(Icons.calendar_today),
+                title: const Text('Manage User Appointments'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UserAppointmentsPage(),
+                    ),
+                  );
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.person),
                 title: const Text('Profile'),
