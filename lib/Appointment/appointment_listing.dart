@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppointmentListingPage extends StatefulWidget {
   const AppointmentListingPage({super.key});
@@ -287,14 +288,65 @@ class _DoctorProfileCardState extends State<DoctorProfileCard> {
                   elevation: 0,
                 ),
                 onPressed: (selectedDate != null && selectedTime != null)
-                    ? () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                'Appointment booked with ${doctor['name']} on ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} at $selectedTime'),
-                            backgroundColor: Colors.green,
-                          ),
+                    ? () async {
+                        final emailController = TextEditingController();
+                        final enteredEmail = await showDialog<String>(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Enter Your Email'),
+                              content: TextField(
+                                controller: emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: const InputDecoration(
+                                  labelText: 'Email',
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(emailController.text.trim());
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
                         );
+                        if (enteredEmail != null && enteredEmail.isNotEmpty) {
+                          final response = await Supabase.instance.client
+                              .from('appointments')
+                              .insert({
+                            'patientemail': enteredEmail,
+                            'doctorname': doctor['name'],
+                            'hospitalbranch': doctor['hospital'],
+                            'appointmentdate':
+                                selectedDate!.toIso8601String().split('T')[0],
+                            'appointmenttime': selectedTime,
+                          });
+                          if (response.error == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Appointment booked with \\${doctor['name']} on \\${selectedDate!.day}/\\${selectedDate!.month}/\\${selectedDate!.year} at \\$selectedTime'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Failed to book appointment: \\${response.error!.message}'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
                       }
                     : null,
                 child: const Row(
