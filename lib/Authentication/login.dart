@@ -16,7 +16,6 @@ class _LoginPageState extends State<LoginPage> {
       final session = data.session;
       final user = session?.user;
       if (user != null) {
-        // Check if user exists in users table
         final response = await Supabase.instance.client
             .from('users')
             .select('id')
@@ -38,30 +37,62 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Color palette from logo
+    const Color primaryBlue = Color(0xFF00B0F0); // MG blue
+    const Color accentGreen = Color(0xFF7AC143); // HOSPITAL green
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        backgroundColor: primaryBlue,
+        elevation: 0,
+        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () async {
-                await Supabase.instance.client.auth
-                    .signInWithOAuth(OAuthProvider.google);
-              },
-              child: const Text('Sign in with Google'),
-            ),
-            const SizedBox(height: 20),
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/register');
-              },
-              child: const Text("Don't have an account? Register"),
-            ),
-          ],
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 24),
+              const Text(
+                'Welcome to MG Hospital',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: primaryBlue,
+                  letterSpacing: 1.2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 48),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await Supabase.instance.client.auth
+                        .signInWithOAuth(OAuthProvider.google);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: accentGreen,
+                    foregroundColor: Colors.white,
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  child: const Text('Sign in with Google'),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
