@@ -237,14 +237,13 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: Container(
         color: const Color(0xFF00a0e0),
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _NavItem(
-              icon: Icons.laptop_mac,
+              imagePath: 'assets/images/book_appointment.png',
               label: 'Book Appt.',
-              color: const Color.fromARGB(255, 2, 117, 73),
               onTap: () {
                 Navigator.push(
                   context,
@@ -254,9 +253,8 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             _NavItem(
-              icon: Icons.local_hospital,
+              imagePath: 'assets/images/hospitals.png',
               label: 'Hospitals',
-              color: Colors.white,
               onTap: () {
                 Navigator.push(
                   context,
@@ -266,9 +264,8 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             _NavItem(
-              icon: Icons.phone,
+              imagePath: 'assets/images/call_us.png',
               label: 'Call Us',
-              color: Colors.white,
               onTap: () {
                 Navigator.push(
                   context,
@@ -285,15 +282,13 @@ class _HomePageState extends State<HomePage> {
 }
 
 class _NavItem extends StatelessWidget {
-  final IconData icon;
+  final String imagePath;
   final String label;
-  final Color color;
   final VoidCallback onTap;
 
   const _NavItem({
-    required this.icon,
+    required this.imagePath,
     required this.label,
-    required this.color,
     required this.onTap,
   });
 
@@ -304,13 +299,17 @@ class _NavItem extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 36, color: color),
-          const SizedBox(height: 4),
+          Image.asset(
+            imagePath,
+            height: 22,
+            width: 22,
+          ),
+          const SizedBox(height: 3),
           Text(
             label,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 13,
+              fontSize: 12,
               color: Colors.black87,
             ),
           ),

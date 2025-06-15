@@ -69,6 +69,13 @@ flutter:
     - assets/images/dermatology.png
     - assets/images/neurology.png
     - assets/images/gastroenterology.png
+    - assets/images/book_appointment.png
+    - assets/images/hospitals.png
+    - assets/images/call_us.png
+    - assets/images/health-checkup.jpg
+    - assets/images/consultation.jpg
+    - assets/images/weekend.jpg
+
     # - images/a_dot_burr.jpeg
     # - images/a_dot_ham.jpeg
 
