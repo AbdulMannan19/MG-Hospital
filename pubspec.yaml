@@ -77,6 +77,12 @@ flutter:
     - assets/images/health-checkup.jpg
     - assets/images/consultation.jpg
     - assets/images/weekend.jpg
+    - assets/images/mg-hospital-dr-ahmad-abdul-khabeer.jpeg
+    - assets/images/mg-hospital-dr-mohammed-ateeq-ur-rahman.jpeg
+    - assets/images/mg-hospital-dr-mohd-naqi-zain.jpeg
+    - assets/images/secunderabad branch.png
+    - assets/images/tolichowki branch.jpg
+    - assets/images/Banjara hills branch.png
 
     # - images/a_dot_burr.jpeg
     # - images/a_dot_ham.jpeg

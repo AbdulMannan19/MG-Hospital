@@ -35,7 +35,7 @@ class _AppointmentListingPageState extends State<AppointmentListingPage> {
       'experience': '15+ Years Experience',
       'qualifications': 'MBBS, MD, DM (Cardiology)',
       'hospital': 'MG Hospital - Tolichowki',
-      'photo_url': '',
+      'photo_url': 'assets/images/mg-hospital-dr-mohammed-ateeq-ur-rahman.jpeg',
       'available_times': ['10:00', '11:00', '12:00', '15:00', '16:00'],
     },
     {
@@ -44,7 +44,7 @@ class _AppointmentListingPageState extends State<AppointmentListingPage> {
       'experience': '12+ Years Experience',
       'qualifications': 'MBBS, MS (ENT), DLO',
       'hospital': 'MG Hospital - Banjara Hills',
-      'photo_url': '',
+      'photo_url': 'assets/images/mg-hospital-dr-ahmad-abdul-khabeer.jpeg',
       'available_times': ['10:00', '12:00', '14:00', '16:00'],
     },
     {
@@ -53,7 +53,7 @@ class _AppointmentListingPageState extends State<AppointmentListingPage> {
       'experience': '10+ Years Experience',
       'qualifications': 'MBBS, MS (Orthopedics)',
       'hospital': 'MG Hospital - Secunderabad',
-      'photo_url': '',
+      'photo_url': 'assets/images/mg-hospital-dr-mohd-naqi-zain.jpeg',
       'available_times': ['09:00', '11:00', '13:00', '15:00'],
     },
   ];
@@ -199,8 +199,14 @@ class _DoctorProfileCardState extends State<DoctorProfileCard> {
                     width: 72,
                     height: 72,
                     color: Colors.grey[200],
-                    child:
-                        const Icon(Icons.person, size: 48, color: Colors.grey),
+                    child: Image.asset(
+                      doctor['photo_url'],
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.person,
+                            size: 48, color: Colors.grey);
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),

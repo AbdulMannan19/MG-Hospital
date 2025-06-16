@@ -11,19 +11,19 @@ class HospitalBranchesPage extends StatelessWidget {
         'name': 'MG Hospital - Tolichowki',
         'address': 'Tolichowki, Hyderabad',
         'phone': '+919876543210',
-        'image': 'assets/images/hospital1.jpg',
+        'image': 'assets/images/tolichowki branch.jpg',
       },
       {
         'name': 'MG Hospital - Banjara Hills',
         'address': 'Banjara Hills, Hyderabad',
         'phone': '+919876543211',
-        'image': 'assets/images/hospital2.jpg',
+        'image': 'assets/images/Banjara hills branch.png',
       },
       {
         'name': 'MG Hospital - Secunderabad',
         'address': 'Secunderabad, Hyderabad',
         'phone': '+919876543212',
-        'image': 'assets/images/hospital3.jpg',
+        'image': 'assets/images/secunderabad branch.png',
       },
     ];
 

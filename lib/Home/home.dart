@@ -255,20 +255,7 @@ class _HomePageState extends State<HomePage> {
               elevation: 4,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 32),
-                child: Center(
-                  child: Text(
-                    'Advertisement',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[800],
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ),
-              ),
+              child: const AdvertisementSlider(),
             ),
           ),
         ],
@@ -349,6 +336,142 @@ class _NavItem extends StatelessWidget {
               fontWeight: FontWeight.bold,
               fontSize: 12,
               color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AdvertisementSlider extends StatefulWidget {
+  const AdvertisementSlider({super.key});
+
+  @override
+  State<AdvertisementSlider> createState() => _AdvertisementSliderState();
+}
+
+class _AdvertisementSliderState extends State<AdvertisementSlider> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  final List<Map<String, dynamic>> _slides = [
+    {
+      'title': 'Special Health Package',
+      'description': 'Get 20% off on complete health checkup',
+      'color': Colors.blue[700],
+    },
+    {
+      'title': 'New Specialist Joins',
+      'description': 'Dr. Sarah joins our cardiology department',
+      'color': Colors.teal[700],
+    },
+    {
+      'title': 'Weekend Health Camp',
+      'description': 'Free consultation for senior citizens',
+      'color': Colors.indigo[700],
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _startAutoScroll();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _startAutoScroll() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        if (_currentPage < _slides.length - 1) {
+          _currentPage++;
+        } else {
+          _currentPage = 0;
+        }
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+        _startAutoScroll();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 160,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            itemCount: _slides.length,
+            itemBuilder: (context, index) {
+              final slide = _slides[index];
+              return Container(
+                decoration: BoxDecoration(
+                  color: slide['color'],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        slide['title'],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        slide['description'],
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+          Positioned(
+            bottom: 12,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                _slides.length,
+                (index) => Container(
+                  width: 6,
+                  height: 6,
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _currentPage == index
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.5),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
