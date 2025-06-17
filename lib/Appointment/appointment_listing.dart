@@ -1,6 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+void showSuccessDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => AlertDialog(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check_circle, color: Colors.green, size: 80),
+          SizedBox(height: 16),
+          Text(
+            'Thank you!',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 8),
+          Text('Your submission has been sent.'),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK'),
+        ),
+      ],
+    ),
+  );
+}
+
 class AppointmentListingPage extends StatefulWidget {
   const AppointmentListingPage({super.key});
 
@@ -341,6 +369,9 @@ class _DoctorProfileCardState extends State<DoctorProfileCard> {
                           },
                         );
                         if (enteredEmail != null && enteredEmail.isNotEmpty) {
+                          print(
+                              'Sending appointment booking request for email: ' +
+                                  enteredEmail);
                           final response = await Supabase.instance.client
                               .from('appointments')
                               .insert({
@@ -351,15 +382,9 @@ class _DoctorProfileCardState extends State<DoctorProfileCard> {
                                 selectedDate!.toIso8601String().split('T')[0],
                             'appointmenttime': selectedTime,
                           });
-                          if (response.error == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    'Appointment booked with \\${doctor['name']} on \\${selectedDate!.day}/\\${selectedDate!.month}/\\${selectedDate!.year} at \\$selectedTime'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          } else {
+                          if (response == null) {
+                            showSuccessDialog(context);
+                          } else if (response.error != null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
@@ -367,6 +392,9 @@ class _DoctorProfileCardState extends State<DoctorProfileCard> {
                                 backgroundColor: Colors.red,
                               ),
                             );
+                          } else {
+                            // fallback: treat as success if no error property
+                            showSuccessDialog(context);
                           }
                         }
                       }
