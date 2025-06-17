@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.mg_frontend"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12877973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
