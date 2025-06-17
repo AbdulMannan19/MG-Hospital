@@ -150,24 +150,29 @@ class SpecialitiesPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Image.asset(
-              imagePath,
-              width: double.infinity,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 120,
-                  color: const Color(0xFF13a8b4),
-                  child: const Icon(
-                    Icons.medical_services,
-                    size: 50,
-                    color: Colors.white,
-                  ),
-                );
-              },
+          Padding(
+  padding: const EdgeInsets.only(top: 12),
+  child: Center(
+    child: SizedBox(
+      height: 60, // 👈 Decrease this value to make the image frame smaller
+      child: Image.asset(
+        imagePath,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            height: 60,
+            color: const Color(0xFF13a8b4),
+            child: const Icon(
+              Icons.medical_services,
+              size: 20,
+              color: Colors.white,
             ),
-          ),
+          );
+        },
+      ),
+    ),
+  ),
+),
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
