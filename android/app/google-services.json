@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "143056683978",
+    "project_id": "mg-hospital-a819a",
+    "storage_bucket": "mg-hospital-a819a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:143056683978:android:d2b349998bbd355835c533",
+        "android_client_info": {
+          "package_name": "com.example.mg_frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7RpD1IrnuOjMM3nCrIa_AuWE5cExyCeQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
