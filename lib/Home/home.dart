@@ -7,6 +7,7 @@ import '../About Us/about_us_page.dart';
 import '../Specialities/specialities_page.dart';
 import '../Our Doctors/our_doctors_page.dart';
 import '../Appointment/user_appointments.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -128,12 +129,21 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 leading: const Icon(Icons.logout),
                 title: const Text('Logout'),
-                onTap: () {
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/login',
-                    (route) => false,
-                  );
+                onTap: () async {
+                  try {
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/login',
+                      (route) => false,
+                    );
+                  } catch (e) {
+                    print('Error during logout: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text('Failed to log out: ${e.toString()}')),
+                    );
+                  }
                 },
               ),
             ],
