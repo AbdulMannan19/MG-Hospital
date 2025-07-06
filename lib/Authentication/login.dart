@@ -19,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   int? _resendToken; // For resending the code
 
   String? _errorMessage; // To display authentication errors
+  String _selectedCountryCode = '+1'; // Default to American country code
 
   @override
   void dispose() {
@@ -41,9 +42,8 @@ class _LoginPageState extends State<LoginPage> {
       _errorMessage = null;
     });
 
-    // Hardcoded phone number for now, as requested
-    // In a real app, you would use _phoneNumberController.text.trim()
-    final String phoneNumberToVerify = '+19132636353';
+    // Construct the full phone number using the selected country code and user input
+    final String phoneNumberToVerify = _selectedCountryCode + _phoneNumberController.text.trim();
 
     try {
       await FirebaseAuth.instance.verifyPhoneNumber(
@@ -95,12 +95,10 @@ class _LoginPageState extends State<LoginPage> {
           setState(() {
             _isLoading = false;
             _verificationId = verificationId; // Still store verification ID
-            _errorMessage =
-                'SMS code auto-retrieval timed out. Please enter manually.';
+            _errorMessage = 'SMS code auto-retrieval timed out. Please enter manually.';
           });
         },
-        timeout:
-            const Duration(seconds: 60), // Set a timeout for auto-retrieval
+        timeout: const Duration(seconds: 60), // Set a timeout for auto-retrieval
       );
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -197,20 +195,56 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
 
-                // Phone Number Input
-                TextFormField(
-                  controller: _phoneNumberController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    labelText: 'Phone Number (e.g., +1XXXXXXXXXX)',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                // Country Code Dropdown and Phone Number Input
+                Row(
+                  children: [
+                    // Country Code Dropdown
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _selectedCountryCode,
+                        icon: const Icon(Icons.arrow_drop_down),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedCountryCode = newValue!;
+                          });
+                        },
+                        items: <String>['+1', '+91']
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
                     ),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  // No validator here, as we're hardcoding for now.
-                  // In a real app, you'd validate the format.
+                    const SizedBox(width: 8),
+                    // Phone Number Input
+                    Expanded(
+                      child: TextFormField(
+                        controller: _phoneNumberController,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          labelText: 'Phone Number',
+                          hintText: 'e.g., 9132636353', // Example without country code
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your phone number';
+                          }
+                          // Basic validation: ensure it's digits only
+                          if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                            return 'Please enter digits only';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
 
@@ -218,8 +252,7 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                   onPressed: _isLoading ? null : _verifyPhoneNumber,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(
-                        0xFF13a8b4), // A different color for distinction
+                    backgroundColor: const Color(0xFF13a8b4),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -232,8 +265,7 @@ class _LoginPageState extends State<LoginPage> {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
                       : const Text(
@@ -259,14 +291,19 @@ class _LoginPageState extends State<LoginPage> {
                       filled: true,
                       fillColor: Colors.white,
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter the SMS code';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 16),
                   // Verify Code Button
                   ElevatedButton(
                     onPressed: _isLoading ? null : _signInWithPhoneNumber,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Colors.green[700], // Another distinct color
+                      backgroundColor: Colors.green[700],
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -279,8 +316,7 @@ class _LoginPageState extends State<LoginPage> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text(
