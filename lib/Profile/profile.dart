@@ -20,24 +20,19 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    debugPrint(
-        '[ProfilePage] initState: Fetching profile for userId: \\${globals.globalUserId}');
     _fetchProfile();
   }
 
   Future<void> _fetchProfile() async {
     final supabase = Supabase.instance.client;
     try {
-      debugPrint(
-          '[ProfilePage] _fetchProfile: Querying Supabase for userId: \\${globals.globalUserId}');
       final response = await supabase
           .from('users')
           .select('name, date_of_birth, gender')
           .eq('id', globals.globalUserId)
           .single()
           .execute();
-      debugPrint(
-          '[ProfilePage] _fetchProfile: Supabase response status: \\${response.status}, data: \\${response.data}');
+
       if (response.status == 200 && response.data != null) {
         setState(() {
           _name = response.data['name'] ?? '';
