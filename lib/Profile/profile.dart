@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../globals.dart' as globals;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -8,25 +11,64 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final _nameController = TextEditingController(text: 'John Doe');
-  final _dobController = TextEditingController(text: '1990-01-01');
-  final _genderController = TextEditingController(text: 'Male');
-  final _phoneController = TextEditingController(text: '+91 9876543210');
-  final _userEmail = 'john.doe@example.com';
+  String? _name;
+  String? _dob;
+  String? _gender;
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _dobController.dispose();
-    _genderController.dispose();
-    _phoneController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    debugPrint(
+        '[ProfilePage] initState: Fetching profile for userId: \\${globals.globalUserId}');
+    _fetchProfile();
   }
 
-  void _saveProfile() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile updated!')),
-    );
+  Future<void> _fetchProfile() async {
+    final supabase = Supabase.instance.client;
+    try {
+      debugPrint(
+          '[ProfilePage] _fetchProfile: Querying Supabase for userId: \\${globals.globalUserId}');
+      final response = await supabase
+          .from('users')
+          .select('name, date_of_birth, gender')
+          .eq('id', globals.globalUserId)
+          .single()
+          .execute();
+      debugPrint(
+          '[ProfilePage] _fetchProfile: Supabase response status: \\${response.status}, data: \\${response.data}');
+      if (response.status == 200 && response.data != null) {
+        setState(() {
+          _name = response.data['name'] ?? '';
+          _dob = response.data['date_of_birth'] ?? '';
+          _gender = _genderString(response.data['gender']);
+          _isLoading = false;
+        });
+        debugPrint(
+            '[ProfilePage] _fetchProfile: Profile loaded: name=\\${_name}, dob=\\${_dob}, gender=\\${_gender}');
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to load profile data.';
+          _isLoading = false;
+        });
+        debugPrint(
+            '[ProfilePage] _fetchProfile: Failed to load profile data. Status: \\${response.status}');
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading profile: \\${e}';
+        _isLoading = false;
+      });
+      debugPrint('[ProfilePage] _fetchProfile: Exception: \\${e}');
+    }
+  }
+
+  String _genderString(dynamic genderValue) {
+    if (genderValue == null) return '';
+    if (genderValue == 1) return 'Male';
+    if (genderValue == 2) return 'Female';
+    return genderValue.toString();
   }
 
   @override
@@ -37,98 +79,38 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: const Color(0xFF13a8b4),
         foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: const Color(0xFF13a8b4),
-              child: const Icon(Icons.person, size: 60, color: Colors.white),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _nameController.text,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            Text(
-              _userEmail,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.grey[700]),
-            ),
-            const SizedBox(height: 32),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.person),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage != null
+              ? Center(child: Text(_errorMessage!))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: const Color(0xFF13a8b4),
+                        child: const Icon(Icons.person,
+                            size: 60, color: Colors.white),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _dobController,
-                      decoration: const InputDecoration(
-                        labelText: 'Date of Birth (YYYY-MM-DD)',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.calendar_today),
+                      const SizedBox(height: 16),
+                      Text(
+                        _name ?? '',
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _genderController,
-                      decoration: const InputDecoration(
-                        labelText: 'Gender',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.transgender),
+                      Text(
+                        _dob ?? '',
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _phoneController,
-                      decoration: const InputDecoration(
-                        labelText: 'Phone Number',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.phone),
+                      Text(
+                        _gender ?? '',
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _saveProfile,
-                        icon: const Icon(Icons.save),
-                        label: const Text('Save Profile'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          textStyle: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          backgroundColor: const Color(0xFF13a8b4),
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
+                      // You can add an edit button here if you want
+                    ],
+                  ),
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
