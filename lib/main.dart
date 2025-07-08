@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
+import 'package:firebase_auth/firebase_auth.dart';
 import 'Home/home.dart';
 import 'Authentication/login.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
-    hide User; // Hide User from Supabase
+    hide User;
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -14,8 +14,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  final supabaseUrl = 'https://tuivyasedfkzbkdnbslp.supabase.co';
-  final supabaseAnonKey =
+  const supabaseUrl = 'https://tuivyasedfkzbkdnbslp.supabase.co';
+  const supabaseAnonKey =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1aXZ5YXNlZGZremJrZG5ic2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMjA1NTEsImV4cCI6MjA2NTU5NjU1MX0.10sPx_lMLspGziJKvWkYIHMyI5HIGB-X_rYhYTA_Vug';
 
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);

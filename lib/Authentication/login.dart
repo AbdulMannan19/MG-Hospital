@@ -1,8 +1,8 @@
 import '../globals.dart' as globals;
+import '../globals.dart' show Profile;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter/foundation.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -67,6 +67,7 @@ class _LoginPageState extends State<LoginPage> {
               if (mounted) {
                 Navigator.pushReplacementNamed(context, '/home');
               }
+              _fetchProfileData(userCredential.user!.uid);
             } else {
               setState(() {
                 _isLoading = false;
@@ -147,9 +148,14 @@ class _LoginPageState extends State<LoginPage> {
       if (userCredential.user != null) {
         globals.globalUserId = userCredential.user!.uid;
         await _syncUserWithSupabase(userCredential.user!.uid);
+
+        // Navigate to home page immediately
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/home');
         }
+
+        // Load profile data in background (don't await)
+        _fetchProfileData(userCredential.user!.uid);
       } else {
         setState(() {
           _isLoading = false;
@@ -182,25 +188,59 @@ class _LoginPageState extends State<LoginPage> {
       final List data = response.data as List;
 
       if (data.isEmpty) {
-        // User does not exist, insert new user
         final insertResponse =
             await supabase.from('users').insert({'id': firebaseUid}).execute();
 
-        // Check for error using status (201 = created, 200 = success)
         if (insertResponse.status != 201 && insertResponse.status != 200) {
           setState(() {
             _errorMessage =
                 'Failed to create user profile: ${insertResponse.status}';
           });
         }
-      } else {
-        // User exists, do nothing or log if needed
       }
     } catch (e) {
       setState(() {
         _errorMessage = 'An error occurred during user sync: $e';
       });
     }
+  }
+
+  Future<void> _fetchProfileData(String userId) async {
+    try {
+      final response = await supabase
+          .from('users')
+          .select('name, date_of_birth, gender')
+          .eq('id', userId)
+          .single()
+          .execute();
+
+      if (response.status == 200 && response.data != null) {
+        final data = response.data;
+        final name = data['name'] ?? '';
+        final dateOfBirth = data['date_of_birth'] ?? '';
+        final gender = _genderToString(data['gender']);
+
+        globals.globalProfile = Profile(
+          name: name,
+          dateOfBirth: dateOfBirth,
+          gender: gender,
+        );
+
+        debugPrint(
+            '[LoginPage] Profile data loaded: name=$name, dob=$dateOfBirth, gender=$gender');
+      } else {
+        debugPrint('[LoginPage] Failed to load profile data during login');
+      }
+    } catch (e) {
+      debugPrint('[LoginPage] Error loading profile data: $e');
+    }
+  }
+
+  String _genderToString(dynamic genderValue) {
+    if (genderValue == null) return '';
+    if (genderValue == 1) return 'Male';
+    if (genderValue == 2) return 'Female';
+    return genderValue.toString();
   }
 
   @override

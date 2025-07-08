@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../globals.dart' as globals;
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter/foundation.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -20,50 +18,25 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _fetchProfile();
+    _loadProfileFromGlobal();
   }
 
-  Future<void> _fetchProfile() async {
-    final supabase = Supabase.instance.client;
-    try {
-      final response = await supabase
-          .from('users')
-          .select('name, date_of_birth, gender')
-          .eq('id', globals.globalUserId)
-          .single()
-          .execute();
-
-      if (response.status == 200 && response.data != null) {
-        setState(() {
-          _name = response.data['name'] ?? '';
-          _dob = response.data['date_of_birth'] ?? '';
-          _gender = _genderString(response.data['gender']);
-          _isLoading = false;
-        });
-        debugPrint(
-            '[ProfilePage] _fetchProfile: Profile loaded: name=\\${_name}, dob=\\${_dob}, gender=\\${_gender}');
-      } else {
-        setState(() {
-          _errorMessage = 'Failed to load profile data.';
-          _isLoading = false;
-        });
-        debugPrint(
-            '[ProfilePage] _fetchProfile: Failed to load profile data. Status: \\${response.status}');
-      }
-    } catch (e) {
+  void _loadProfileFromGlobal() {
+    if (globals.globalProfile != null) {
       setState(() {
-        _errorMessage = 'Error loading profile: \\${e}';
+        _name = globals.globalProfile!.name;
+        _dob = globals.globalProfile!.dateOfBirth;
+        _gender = globals.globalProfile!.gender;
         _isLoading = false;
       });
-      debugPrint('[ProfilePage] _fetchProfile: Exception: \\${e}');
+      debugPrint(
+          '[ProfilePage] Using global profile data: name=$_name, dob=$_dob, gender=$_gender');
+    } else {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'No profile data available';
+      });
     }
-  }
-
-  String _genderString(dynamic genderValue) {
-    if (genderValue == null) return '';
-    if (genderValue == 1) return 'Male';
-    if (genderValue == 2) return 'Female';
-    return genderValue.toString();
   }
 
   @override
@@ -83,11 +56,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 50,
-                        backgroundColor: const Color(0xFF13a8b4),
-                        child: const Icon(Icons.person,
-                            size: 60, color: Colors.white),
+                        backgroundColor: Color(0xFF13a8b4),
+                        child:
+                            Icon(Icons.person, size: 60, color: Colors.white),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -102,7 +75,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         _gender ?? '',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                      // You can add an edit button here if you want
                     ],
                   ),
                 ),

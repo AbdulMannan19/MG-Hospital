@@ -39,7 +39,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         actions: [
-          // Adding an empty container to balance the leading icon
           Container(width: 48),
         ],
       ),
