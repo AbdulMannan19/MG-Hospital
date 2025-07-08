@@ -7,6 +7,7 @@ import '../About Us/about_us_page.dart';
 import '../Specialities/specialities_page.dart';
 import '../Our Doctors/our_doctors_page.dart';
 import '../Appointment/user_appointments.dart';
+import '../globals.dart' as globals;
 import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatefulWidget {
@@ -130,6 +131,10 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Logout'),
                 onTap: () async {
                   try {
+                    // Clear global profile data
+                    globals.globalUserId = null;
+                    globals.globalProfile = null;
+
                     await FirebaseAuth.instance.signOut();
                     Navigator.pushNamedAndRemoveUntil(
                       context,
@@ -153,7 +158,6 @@ class _HomePageState extends State<HomePage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // Green gradient area with main content
               Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(

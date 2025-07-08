@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'Home/home.dart';
 import 'Authentication/login.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'
-    hide User;
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'globals.dart' as globals;
+import 'globals.dart' show Profile;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +26,40 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+  void _fetchProfileDataOnRestore(String userId) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final response = await supabase
+          .from('users')
+          .select('name, date_of_birth, gender')
+          .eq('id', userId)
+          .single()
+          .execute();
+
+      if (response.status == 200 && response.data != null) {
+        final data = response.data;
+        final name = data['name'] ?? '';
+        final dateOfBirth = data['date_of_birth'] ?? '';
+        final gender = _genderToString(data['gender']);
+
+        globals.globalProfile = Profile(
+          name: name,
+          dateOfBirth: dateOfBirth,
+          gender: gender,
+        );
+      }
+    } catch (e) {
+      print('[MyApp] Error restoring profile data: $e');
+    }
+  }
+
+  String _genderToString(dynamic genderValue) {
+    if (genderValue == null) return '';
+    if (genderValue == 1) return 'Male';
+    if (genderValue == 2) return 'Female';
+    return genderValue.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +81,14 @@ class MyApp extends StatelessWidget {
             );
           }
           if (snapshot.hasData) {
+            if (globals.globalUserId == null) {
+              globals.globalUserId = snapshot.data!.uid;
+              _fetchProfileDataOnRestore(snapshot.data!.uid);
+            }
             return const HomePage();
           } else {
+            globals.globalUserId = null;
+            globals.globalProfile = null;
             return const LoginPage();
           }
         },
