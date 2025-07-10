@@ -15,6 +15,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String? _name;
   String? _dob;
   String? _gender;
+  bool _isAdmin = false;
   bool _isLoading = true;
   String? _errorMessage;
   bool _isEditing = false;
@@ -36,16 +37,9 @@ class _ProfilePageState extends State<ProfilePage> {
         _name = globals.globalProfile!.name;
         _dob = globals.globalProfile!.dateOfBirth;
         _gender = globals.globalProfile!.gender;
+        _isAdmin = globals.globalProfile!.isAdmin;
         _isLoading = false;
       });
-
-      // Initialize controllers with current values
-      _nameController.text = _name ?? '';
-      _dobController.text = _dob ?? '';
-      _selectedGender = _gender;
-
-      debugPrint(
-          '[ProfilePage] Using global profile data: name=$_name, dob=$_dob, gender=$_gender');
     } else {
       setState(() {
         _isLoading = false;
@@ -124,11 +118,11 @@ class _ProfilePageState extends State<ProfilePage> {
         _isLoading = false;
       });
 
-      // Update global profile
       globals.globalProfile = Profile(
         name: _name,
         dateOfBirth: _dob,
         gender: _gender,
+        isAdmin: _isAdmin,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -205,7 +199,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ] else ...[
-                        // Edit Mode
                         TextFormField(
                           controller: _nameController,
                           decoration: const InputDecoration(

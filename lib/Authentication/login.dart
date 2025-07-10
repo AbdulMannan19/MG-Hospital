@@ -209,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final response = await supabase
           .from('users')
-          .select('name, date_of_birth, gender')
+          .select('name, date_of_birth, gender, is_admin')
           .eq('id', userId)
           .single()
           .execute();
@@ -219,11 +219,13 @@ class _LoginPageState extends State<LoginPage> {
         final name = data['name'] ?? '';
         final dateOfBirth = data['date_of_birth'] ?? '';
         final gender = _genderToString(data['gender']);
+        final isAdmin = data['is_admin'] ?? false;
 
         globals.globalProfile = Profile(
           name: name,
           dateOfBirth: dateOfBirth,
           gender: gender,
+          isAdmin: isAdmin,
         );
 
         debugPrint(

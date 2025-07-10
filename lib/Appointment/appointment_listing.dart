@@ -6,7 +6,7 @@ void showSuccessDialog(BuildContext context) {
     context: context,
     barrierDismissible: false,
     builder: (context) => AlertDialog(
-      content: Column(
+      content: const Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.check_circle, color: Colors.green, size: 80),
@@ -17,12 +17,12 @@ void showSuccessDialog(BuildContext context) {
           ),
           SizedBox(height: 8),
           Text('Your submission has been sent.'),
-        ],
+        ], 
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text('OK'),
+          child: const Text('OK'),
         ),
       ],
     ),
