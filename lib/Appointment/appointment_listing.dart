@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/user_service.dart';
 
 void showSuccessDialog(BuildContext context) {
   showDialog(
@@ -16,8 +18,8 @@ void showSuccessDialog(BuildContext context) {
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 8),
-          Text('Your submission has been sent.'),
-        ], 
+          Text('Your appointment has been booked successfully.'),
+        ],
       ),
       actions: [
         TextButton(
@@ -27,6 +29,18 @@ void showSuccessDialog(BuildContext context) {
       ],
     ),
   );
+}
+
+int calculateAge(String dateOfBirth) {
+  final dob = DateTime.tryParse(dateOfBirth);
+  if (dob == null) return 0;
+  final today = DateTime.now();
+  int age = today.year - dob.year;
+  if (today.month < dob.month ||
+      (today.month == dob.month && today.day < dob.day)) {
+    age--;
+  }
+  return age;
 }
 
 class AppointmentListingPage extends StatefulWidget {
@@ -65,6 +79,7 @@ class _AppointmentListingPageState extends State<AppointmentListingPage> {
       'hospital': 'MG Hospital - Tolichowki',
       'photo_url': 'assets/images/mg-hospital-dr-mohammed-ateeq-ur-rahman.jpeg',
       'available_times': ['10:00', '11:00', '12:00', '15:00', '16:00'],
+      'specialization': 'Cardiology',
     },
     {
       'id': 2,
@@ -74,6 +89,7 @@ class _AppointmentListingPageState extends State<AppointmentListingPage> {
       'hospital': 'MG Hospital - Banjara Hills',
       'photo_url': 'assets/images/mg-hospital-dr-ahmad-abdul-khabeer.jpeg',
       'available_times': ['10:00', '12:00', '14:00', '16:00'],
+      'specialization': 'ENT',
     },
     {
       'id': 3,
@@ -83,6 +99,7 @@ class _AppointmentListingPageState extends State<AppointmentListingPage> {
       'hospital': 'MG Hospital - Secunderabad',
       'photo_url': 'assets/images/mg-hospital-dr-mohd-naqi-zain.jpeg',
       'available_times': ['09:00', '11:00', '13:00', '15:00'],
+      'specialization': 'Orthopedics',
     },
   ];
 
@@ -339,63 +356,54 @@ class _DoctorProfileCardState extends State<DoctorProfileCard> {
                 ),
                 onPressed: (selectedDate != null && selectedTime != null)
                     ? () async {
-                        final emailController = TextEditingController();
-                        final enteredEmail = await showDialog<String>(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text('Enter Your Email'),
-                              content: TextField(
-                                controller: emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                decoration: const InputDecoration(
-                                  labelText: 'Email',
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: const Text('Cancel'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(emailController.text.trim());
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                        if (enteredEmail != null && enteredEmail.isNotEmpty) {
-                          print(
-                              'Sending appointment booking request for email: ' +
-                                  enteredEmail);
-                          final response = await Supabase.instance.client
-                              .from('appointments')
-                              .insert({
-                            'patientemail': enteredEmail,
-                            'doctorname': doctor['name'],
-                            'hospitalbranch': doctor['hospital'],
-                            'appointmentdate':
-                                selectedDate!.toIso8601String().split('T')[0],
-                            'appointmenttime': selectedTime,
-                          });
-                          if (response == null) {
-                            showSuccessDialog(context);
-                          } else if (response.error != null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
+                        final userService = context.read<UserService>();
+                        final user = userService.firebaseUser;
+                        final profile = userService.profile;
+
+                        if (user == null || profile == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
                                 content: Text(
-                                    'Failed to book appointment: \\${response.error!.message}'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          } else {
-                            // fallback: treat as success if no error property
-                            showSuccessDialog(context);
-                          }
+                                    'Please login to book an appointment')),
+                          );
+                          return;
+                        }
+
+                        final age = calculateAge(profile.dateOfBirth ?? '');
+                        String genderText = '';
+                        if (profile.gender == '1' || profile.gender == 1) {
+                          genderText = 'Male';
+                        } else if (profile.gender == '2' ||
+                            profile.gender == 2) {
+                          genderText = 'Female';
+                        } else {
+                          genderText = profile.gender ?? '';
+                        }
+
+                        final response = await Supabase.instance.client
+                            .from('appointments')
+                            .insert({
+                          'patient_id': user.uid,
+                          'patient_name': profile.name ?? '',
+                          'patient_age': age,
+                          'patient_gender': genderText,
+                          'hospital': doctor['hospital'],
+                          'specialization': doctor['specialization'] ?? '',
+                          'doctor_name': doctor['name'],
+                          'appointment_date':
+                              selectedDate!.toIso8601String().split('T')[0],
+                          'appointment_time': selectedTime,
+                          'status': 'in review',
+                        });
+
+                        if (response.error != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(
+                                    'Failed to book appointment: \\${response.error!.message}')),
+                          );
+                        } else {
+                          showSuccessDialog(context);
                         }
                       }
                     : null,
