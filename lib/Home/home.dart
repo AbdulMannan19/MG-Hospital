@@ -22,6 +22,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final userService = Provider.of<UserService>(context);
+    final isAdmin = userService.profile?.isAdmin ?? false;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -95,17 +97,18 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.more_horiz),
-                title: const Text('User Appointments'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const UserAppointmentsPage()),
-                  );
-                },
-              ),
+              if (!isAdmin)
+                ListTile(
+                  leading: const Icon(Icons.more_horiz),
+                  title: const Text('User Appointments'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const UserAppointmentsPage()),
+                    );
+                  },
+                ),
               const Divider(),
               ListTile(
                 leading: const Icon(Icons.person),
@@ -122,7 +125,7 @@ class _HomePageState extends State<HomePage> {
               ),
               ListTile(
                 leading: const Icon(Icons.settings),
-                title: const Text('Settings'),
+                title: const Text('Manage Appointments'),
                 onTap: () {},
               ),
               const Spacer(),
