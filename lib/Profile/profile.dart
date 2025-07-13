@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../globals.dart' as globals;
-import '../globals.dart' show Profile;
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
+import '../services/user_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -28,16 +27,19 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _loadProfileFromGlobal();
+    _loadProfileFromService();
   }
 
-  void _loadProfileFromGlobal() {
-    if (globals.globalProfile != null) {
+  void _loadProfileFromService() {
+    final userService = context.read<UserService>();
+    final profile = userService.profile;
+
+    if (profile != null) {
       setState(() {
-        _name = globals.globalProfile!.name;
-        _dob = globals.globalProfile!.dateOfBirth;
-        _gender = globals.globalProfile!.gender;
-        _isAdmin = globals.globalProfile!.isAdmin;
+        _name = profile.name;
+        _dob = profile.dateOfBirth;
+        _gender = profile.gender;
+        _isAdmin = profile.isAdmin;
         _isLoading = false;
       });
     } else {
@@ -103,12 +105,12 @@ class _ProfilePageState extends State<ProfilePage> {
     });
 
     try {
-      final supabase = Supabase.instance.client;
-      await supabase.from('users').update({
-        'name': _nameController.text.trim(),
-        'date_of_birth': _dobController.text,
-        'gender': _selectedGender == 'Male' ? 1 : 2,
-      }).eq('id', globals.globalUserId);
+      final userService = context.read<UserService>();
+      await userService.updateProfile(
+        name: _nameController.text.trim(),
+        dateOfBirth: _dobController.text,
+        gender: _selectedGender,
+      );
 
       setState(() {
         _name = _nameController.text.trim();
@@ -117,13 +119,6 @@ class _ProfilePageState extends State<ProfilePage> {
         _isEditing = false;
         _isLoading = false;
       });
-
-      globals.globalProfile = Profile(
-        name: _name,
-        dateOfBirth: _dob,
-        gender: _gender,
-        isAdmin: _isAdmin,
-      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully')),

@@ -1,8 +1,7 @@
-import '../globals.dart' as globals;
-import '../globals.dart' show Profile;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
+import '../services/user_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,8 +22,6 @@ class _LoginPageState extends State<LoginPage> {
 
   String? _errorMessage;
   String _selectedCountryCode = '+1';
-
-  final SupabaseClient supabase = Supabase.instance.client;
 
   @override
   void dispose() {
@@ -62,12 +59,10 @@ class _LoginPageState extends State<LoginPage> {
                 await FirebaseAuth.instance.signInWithCredential(credential);
 
             if (userCredential.user != null) {
-              globals.globalUserId = userCredential.user!.uid;
               await _syncUserWithSupabase(userCredential.user!.uid);
               if (mounted) {
                 Navigator.pushReplacementNamed(context, '/home');
               }
-              _fetchProfileData(userCredential.user!.uid);
             } else {
               setState(() {
                 _isLoading = false;
@@ -146,16 +141,12 @@ class _LoginPageState extends State<LoginPage> {
       final UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
       if (userCredential.user != null) {
-        globals.globalUserId = userCredential.user!.uid;
         await _syncUserWithSupabase(userCredential.user!.uid);
 
         // Navigate to home page immediately
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/home');
         }
-
-        // Load profile data in background (don't await)
-        _fetchProfileData(userCredential.user!.uid);
       } else {
         setState(() {
           _isLoading = false;
@@ -177,72 +168,13 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _syncUserWithSupabase(String firebaseUid) async {
     try {
-      // Query for the user by id
-      final response = await supabase
-          .from('users')
-          .select('id')
-          .eq('id', firebaseUid)
-          .limit(1)
-          .execute();
-
-      final List data = response.data as List;
-
-      if (data.isEmpty) {
-        final insertResponse =
-            await supabase.from('users').insert({'id': firebaseUid}).execute();
-
-        if (insertResponse.status != 201 && insertResponse.status != 200) {
-          setState(() {
-            _errorMessage =
-                'Failed to create user profile: ${insertResponse.status}';
-          });
-        }
-      }
+      final userService = context.read<UserService>();
+      await userService.syncUserWithSupabase(firebaseUid);
     } catch (e) {
       setState(() {
         _errorMessage = 'An error occurred during user sync: $e';
       });
     }
-  }
-
-  Future<void> _fetchProfileData(String userId) async {
-    try {
-      final response = await supabase
-          .from('users')
-          .select('name, date_of_birth, gender, is_admin')
-          .eq('id', userId)
-          .single()
-          .execute();
-
-      if (response.status == 200 && response.data != null) {
-        final data = response.data;
-        final name = data['name'] ?? '';
-        final dateOfBirth = data['date_of_birth'] ?? '';
-        final gender = _genderToString(data['gender']);
-        final isAdmin = data['is_admin'] ?? false;
-
-        globals.globalProfile = Profile(
-          name: name,
-          dateOfBirth: dateOfBirth,
-          gender: gender,
-          isAdmin: isAdmin,
-        );
-
-        debugPrint(
-            '[LoginPage] Profile data loaded: name=$name, dob=$dateOfBirth, gender=$gender');
-      } else {
-        debugPrint('[LoginPage] Failed to load profile data during login');
-      }
-    } catch (e) {
-      debugPrint('[LoginPage] Error loading profile data: $e');
-    }
-  }
-
-  String _genderToString(dynamic genderValue) {
-    if (genderValue == null) return '';
-    if (genderValue == 1) return 'Male';
-    if (genderValue == 2) return 'Female';
-    return genderValue.toString();
   }
 
   @override

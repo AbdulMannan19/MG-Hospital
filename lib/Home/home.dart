@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../Profile/profile.dart';
 import '../Appointment/appointment_listing.dart';
 import '../Contact/contact_info_page.dart';
@@ -7,8 +8,7 @@ import '../About Us/about_us_page.dart';
 import '../Specialities/specialities_page.dart';
 import '../Our Doctors/our_doctors_page.dart';
 import '../Appointment/user_appointments.dart';
-import '../globals.dart' as globals;
-import 'package:firebase_auth/firebase_auth.dart';
+import '../services/user_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -131,11 +131,8 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Logout'),
                 onTap: () async {
                   try {
-                    // Clear global profile data
-                    globals.globalUserId = null;
-                    globals.globalProfile = null;
-
-                    await FirebaseAuth.instance.signOut();
+                    final userService = context.read<UserService>();
+                    await userService.signOut();
                     Navigator.pushNamedAndRemoveUntil(
                       context,
                       '/login',

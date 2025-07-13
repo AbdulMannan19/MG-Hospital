@@ -5,8 +5,8 @@ import 'Authentication/login.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'globals.dart' as globals;
-import 'globals.dart' show Profile;
+import 'package:provider/provider.dart';
+import 'services/user_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,77 +27,47 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  void _fetchProfileDataOnRestore(String userId) async {
-    try {
-      final supabase = Supabase.instance.client;
-      final response = await supabase
-          .from('users')
-          .select('name, date_of_birth, gender, is_admin')
-          .eq('id', userId)
-          .single()
-          .execute();
-
-      if (response.status == 200 && response.data != null) {
-        final data = response.data;
-        final name = data['name'] ?? '';
-        final dateOfBirth = data['date_of_birth'] ?? '';
-        final gender = _genderToString(data['gender']);
-        final isAdmin = data['is_admin'] ?? false;
-
-        globals.globalProfile = Profile(
-          name: name,
-          dateOfBirth: dateOfBirth,
-          gender: gender,
-          isAdmin: isAdmin,
-        );
-      }
-    } catch (e) {
-      print('[MyApp] Error restoring profile data: $e');
-    }
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => UserService(),
+      child: MaterialApp(
+        title: 'MG Hospital',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: const AuthWrapper(),
+        routes: {
+          '/login': (context) => const LoginPage(),
+          '/home': (context) => const HomePage(),
+        },
+      ),
+    );
   }
+}
 
-  String _genderToString(dynamic genderValue) {
-    if (genderValue == null) return '';
-    if (genderValue == 1) return 'Male';
-    if (genderValue == 2) return 'Female';
-    return genderValue.toString();
-  }
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'MG Hospital',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-          if (snapshot.hasData) {
-            if (globals.globalUserId == null) {
-              globals.globalUserId = snapshot.data!.uid;
-              _fetchProfileDataOnRestore(snapshot.data!.uid);
-            }
-            return const HomePage();
-          } else {
-            globals.globalUserId = null;
-            globals.globalProfile = null;
-            return const LoginPage();
-          }
-        },
-      ),
-      routes: {
-        '/login': (context) => const LoginPage(),
-        '/home': (context) => const HomePage(),
+    return Consumer<UserService>(
+      builder: (context, userService, child) {
+        if (userService.isLoading) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (userService.isAuthenticated) {
+          return const HomePage();
+        } else {
+          return const LoginPage();
+        }
       },
     );
   }
