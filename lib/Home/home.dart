@@ -351,7 +351,7 @@ class _NavItem extends StatelessWidget {
             imagePath,
             height: 22,
             width: 22,
-            color: Colors.black,
+            // color removed to show original icon colors
           ),
           const SizedBox(height: 3),
           Text(

@@ -119,65 +119,78 @@ class _AppointmentListingPageState extends State<AppointmentListingPage> {
               Card(
                 elevation: 2,
                 margin: const EdgeInsets.only(bottom: 16),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Branch Dropdown
-                      DropdownButtonFormField<int>(
-                        value: null,
-                        hint: const Text("Choose a branch"),
-                        items: branchList.map<DropdownMenuItem<int>>((branch) {
-                          return DropdownMenuItem<int>(
-                            value: branch['id'],
-                            child: Row(
-                              children: [
-                                const Icon(Icons.location_city, size: 18),
-                                const SizedBox(width: 8),
-                                Text(branch['name']),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          final branch =
-                              branchList.firstWhere((b) => b['id'] == value);
-                          setState(() {
-                            selectedBranchName = branch['name'];
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      // Specialization Dropdown
-                      DropdownButtonFormField<int>(
-                        value: null,
-                        hint: const Text("Choose specialization"),
-                        items: specializationList
-                            .map<DropdownMenuItem<int>>((spec) {
-                          return DropdownMenuItem<int>(
-                            value: spec['id'],
-                            child: Row(
-                              children: [
-                                const Icon(Icons.medical_services, size: 18),
-                                const SizedBox(width: 8),
-                                Text(spec['name']),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: selectedBranchName == null
-                            ? null
-                            : (value) {
-                                final spec = specializationList
-                                    .firstWhere((s) => s['id'] == value);
-                                setState(() {
-                                  selectedSpecializationName = spec['name'];
-                                });
-                              },
-                        disabledHint: const Text('Select branch first'),
-                      ),
-                    ],
+                child: Container(
+                  width: double.infinity,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Branch Dropdown
+                        DropdownButtonFormField<int>(
+                          value: null,
+                          hint: const Text("Choose a branch",
+                              style: TextStyle(fontSize: 13)),
+                          isExpanded: true,
+                          items:
+                              branchList.map<DropdownMenuItem<int>>((branch) {
+                            return DropdownMenuItem<int>(
+                              value: branch['id'],
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.location_city, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                      child: Text(branch['name'],
+                                          style: TextStyle(fontSize: 13))),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            final branch =
+                                branchList.firstWhere((b) => b['id'] == value);
+                            setState(() {
+                              selectedBranchName = branch['name'];
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        // Specialization Dropdown
+                        DropdownButtonFormField<int>(
+                          value: null,
+                          hint: const Text("Choose specialization",
+                              style: TextStyle(fontSize: 13)),
+                          isExpanded: true,
+                          items: specializationList
+                              .map<DropdownMenuItem<int>>((spec) {
+                            return DropdownMenuItem<int>(
+                              value: spec['id'],
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.medical_services, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                      child: Text(spec['name'],
+                                          style: TextStyle(fontSize: 13))),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: selectedBranchName == null
+                              ? null
+                              : (value) {
+                                  final spec = specializationList
+                                      .firstWhere((s) => s['id'] == value);
+                                  setState(() {
+                                    selectedSpecializationName = spec['name'];
+                                  });
+                                },
+                          disabledHint: const Text('Select branch first',
+                              style: TextStyle(fontSize: 13)),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
