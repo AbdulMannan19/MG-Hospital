@@ -1,6 +1,17 @@
 9132636351
+9132636354
 123456
 flutter run -d chrome --web-port 5000
 flutter run -d windows
 abdulmannan34695@gmail.com
 flutter run -d chrome --web-renderer html --verbose
+
+chrome crash/ not loading ISSUE solution
+# 1. Clean everything
+flutter clean
+
+# 2. Get dependencies
+flutter pub get
+
+# 3. Try with HTML renderer
+flutter run -d chrome --web-renderer html --web-port 8080

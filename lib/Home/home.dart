@@ -276,14 +276,22 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       bottomNavigationBar: Container(
-        color: const Color(0xFF00a0e0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(
+              color: Colors.grey.shade300,
+              width: 1.2,
+            ),
+          ),
+        ),
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _NavItem(
               imagePath: 'assets/images/book_appointment.png',
-              label: 'Book Appt.',
+              label: 'Appointment',
               onTap: () {
                 Navigator.push(
                   context,
@@ -343,6 +351,7 @@ class _NavItem extends StatelessWidget {
             imagePath,
             height: 22,
             width: 22,
+            color: Colors.black,
           ),
           const SizedBox(height: 3),
           Text(
@@ -350,7 +359,7 @@ class _NavItem extends StatelessWidget {
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 12,
-              color: Colors.black87,
+              color: Colors.black,
             ),
           ),
         ],
@@ -420,7 +429,7 @@ class _AdvertisementSliderState extends State<AdvertisementSlider> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 160,
+      height: 190,
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -440,10 +449,12 @@ class _AdvertisementSliderState extends State<AdvertisementSlider> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         slide['title'],
@@ -460,6 +471,7 @@ class _AdvertisementSliderState extends State<AdvertisementSlider> {
                           color: Colors.white.withOpacity(0.9),
                           fontSize: 14,
                         ),
+                        softWrap: true,
                       ),
                     ],
                   ),
