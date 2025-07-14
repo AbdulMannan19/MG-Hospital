@@ -395,15 +395,15 @@ class _DoctorProfileCardState extends State<DoctorProfileCard> {
                           'appointment_time': selectedTime,
                           'status': 'in review',
                         });
-
-                        if (response.error != null) {
+                        if (response == null) {
+                          showSuccessDialog(context);
+                        } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                                content: Text(
-                                    'Failed to book appointment: \\${response.error!.message}')),
+                              content: Text(
+                                  'Failed to book appointment. Please try again.'),
+                            ),
                           );
-                        } else {
-                          showSuccessDialog(context);
                         }
                       }
                     : null,

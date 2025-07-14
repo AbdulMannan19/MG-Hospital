@@ -8,6 +8,7 @@ import '../About Us/about_us_page.dart';
 import '../Specialities/specialities_page.dart';
 import '../Our Doctors/our_doctors_page.dart';
 import '../Appointment/user_appointments.dart';
+import '../Appointment/manage_appointments.dart';
 import '../services/user_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -102,10 +103,24 @@ class _HomePageState extends State<HomePage> {
                   leading: const Icon(Icons.more_horiz),
                   title: const Text('User Appointments'),
                   onTap: () {
+                    Navigator.pop(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => const UserAppointmentsPage()),
+                    );
+                  },
+                ),
+              if (isAdmin)
+                ListTile(
+                  leading: const Icon(Icons.admin_panel_settings),
+                  title: const Text('Manage Appointments'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ManageAppointmentsPage()),
                     );
                   },
                 ),
@@ -122,11 +137,6 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 },
-              ),
-              ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('Manage Appointments'),
-                onTap: () {},
               ),
               const Spacer(),
               ListTile(
